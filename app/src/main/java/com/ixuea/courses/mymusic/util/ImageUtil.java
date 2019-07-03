@@ -114,7 +114,10 @@ public class ImageUtil {
         options.inJustDecodeBounds=true;
 
         BitmapFactory.decodeResource(resource,resourceId,options);
-
+        /**
+         * 先用这个方法把图片缩放到距离我们尺寸相近的大小。解码的
+         * 时候会崩溃，因为尺寸太大了。
+         */
         options.inSampleSize=computerSampleSize(options,width,height);
 
         options.inJustDecodeBounds=false;

@@ -14,6 +14,8 @@ import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 import com.ixuea.courses.mymusic.R;
 import com.ixuea.courses.mymusic.activity.BaseWebViewActivity;
+import com.ixuea.courses.mymusic.activity.ListDetailActivity;
+import com.ixuea.courses.mymusic.activity.MusicPlayerActivity;
 import com.ixuea.courses.mymusic.adapter.BaseRecyclerViewAdapter;
 import com.ixuea.courses.mymusic.adapter.RecommendAdapter;
 import com.ixuea.courses.mymusic.api.Api;
@@ -21,7 +23,9 @@ import com.ixuea.courses.mymusic.domain.Advertisement;
 import com.ixuea.courses.mymusic.domain.List;
 import com.ixuea.courses.mymusic.domain.Song;
 import com.ixuea.courses.mymusic.domain.response.ListResponse;
+import com.ixuea.courses.mymusic.manager.PlayListManager;
 import com.ixuea.courses.mymusic.reactivex.HttpListener;
+import com.ixuea.courses.mymusic.service.MusicPlayerService;
 import com.ixuea.courses.mymusic.util.Consts;
 import com.ixuea.courses.mymusic.util.ImageUtil;
 import com.youth.banner.Banner;
@@ -51,6 +55,7 @@ public class RecommendFragment extends BaseCommonFragment implements OnBannerLis
     private LinearLayout ll_day_container;
     private TextView tv_day;
     private java.util.List<Advertisement> bannerData;
+    private PlayListManager playListManager;
 
     public static RecommendFragment newInstance(String userId) {
 
@@ -91,13 +96,27 @@ public class RecommendFragment extends BaseCommonFragment implements OnBannerLis
     @Override
     protected void initDatas() {
         super.initDatas();
+        playListManager = MusicPlayerService.getPlayListManager(getActivity().getApplicationContext());
 
         adapter = new RecommendAdapter(getActivity());
         adapter.setOnItemClickListener(new BaseRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerViewAdapter.ViewHolder holder, int position) {
-                 //Course course = (Course)adapter.getItem(position);跳转到详情界面
-                //startActivityExtraId(CourseDetailActivity.class,course.getId());
+               Object data = adapter.getData(position);
+               if (data instanceof Song){
+                   //是单曲,就新建一个列表，把这个音乐添加进去。然后播放。
+                   ArrayList<Song> list = new ArrayList<>();
+                   list.add((Song)data);
+                   playListManager.setPlayList(list);
+                   playListManager.play((Song)data);
+                   startActivity(MusicPlayerActivity.class);
+               }else if (data instanceof List){
+                   //歌单
+                   startActivityExtraId(ListDetailActivity.class,((List)data).getId());
+               }else if (data instanceof Advertisement){
+                   //广告
+                   BaseWebViewActivity.start(getMainActivity(),((Advertisement)data).getTitle(),((Advertisement)data).getUri());
+               }
             }
         });
         //adapter的包装类。

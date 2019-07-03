@@ -1,5 +1,6 @@
 package com.ixuea.courses.mymusic.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -18,6 +19,7 @@ import com.ixuea.courses.mymusic.domain.event.LoginSuccessEvent;
 import com.ixuea.courses.mymusic.domain.event.LogoutSuccessEvent;
 import com.ixuea.courses.mymusic.domain.response.DetailResponse;
 import com.ixuea.courses.mymusic.reactivex.HttpListener;
+import com.ixuea.courses.mymusic.util.Consts;
 import com.ixuea.courses.mymusic.util.UserUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -30,7 +32,7 @@ import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends BaseTitleActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
+public class MainActivity extends BaseMusicPlayerActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
    private DrawerLayout drawer_layout;
     ImageView iv_avatar;
     TextView tv_nickname;
@@ -46,6 +48,7 @@ public class MainActivity extends BaseTitleActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        processIntent(getIntent());
     }
 
     @Override
@@ -135,22 +138,35 @@ public class MainActivity extends BaseTitleActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.iv_music:
-                //第二个参数是滚动效果，平滑滚动
-                vp.setCurrentItem(0,true);
-                break;
-            case R.id.iv_recommend:
-                vp.setCurrentItem(1,true);
-                break;
-            case R.id.iv_video:
-                vp.setCurrentItem(2,true);
-                break;
             case R.id.ll_settings:
                 startActivity(SettingsActivity.class);
                 closeDrawer();
                 break;
-                default:
-                    break;
+            case R.id.iv_music:
+                vp.setCurrentItem(0, true);
+                break;
+            case R.id.iv_recommend:
+                vp.setCurrentItem(1, true);
+                break;
+            case R.id.iv_video:
+                vp.setCurrentItem(2, true);
+                break;
+            case R.id.iv_avatar:
+                avatarClick();
+                closeDrawer();
+                break;
+//            case R.id.ll_my_friend:
+//                startActivity(MyFriendActivity.class);
+//                closeDrawer();
+//                break;
+//            case R.id.ll_message_container:
+//                startActivity(MessageActivity.class);
+//                closeDrawer();
+//                break;
+            default:
+                //如果当前界面没有处理，就调用父类的方法
+                super.onClick(v);
+                break;
         }
     }
 
@@ -224,5 +240,26 @@ public class MainActivity extends BaseTitleActivity implements View.OnClickListe
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
         super.onDestroy();
+    }
+
+    /**
+     * 当我们给Activity配置了启动模式，singletop或者singletask，
+     * 原来的MainActivity已经开启了，再通过intent开启activity的
+     * 时候，原来的activity就不会再开启了，就会调用onNewIntent
+     * 方法。用户有可能退出，所以再次调用显示用户信息。
+     * @param intent
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        showUserInfo();
+        processIntent(intent);
+    }
+    private void processIntent(Intent intent){
+        if (Consts.ACTION_MESSAGE.equals(intent.getAction())){
+            //要跳转到聊天界面
+        }else if (Consts.ACTION_MUSIC_PLAYER.equals(intent.getAction())){
+            startActivity(MusicPlayerActivity.class);
+        }
     }
 }

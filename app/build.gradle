@@ -10,6 +10,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
     }
     signingConfigs {
         debug {
@@ -443,6 +445,7 @@ MobSDK {
 dependencies {
     //implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    //noinspection GradleCompatible
     implementation "com.android.support:appcompat-v7:$rootProject.androidSupportVersion"
     implementation "com.android.support:design:$rootProject.androidSupportVersion"
 
@@ -505,4 +508,31 @@ dependencies {
 
     //    banner
     implementation 'com.youth.banner:banner:1.4.10'
+
+    //添加时间处理的包
+    implementation 'joda-time:joda-time:2.10.1'
+
+    //    image process
+    implementation 'jp.wasabeef:glide-transformations:3.3.0'
+
+    //    phone view
+    implementation 'com.github.chrisbanes:PhotoView:2.1.3'
+
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    implementation 'commons-io:commons-io:2.4'
+
+    //    multi dex
+    implementation 'com.android.support:multidex:1.0.1'
+
+   //    download
+    implementation project(':downloader')
+
+   //    rong im
+    implementation project(':IMLib')
+
+    //emoji控件
+    implementation "com.android.support:support-emoji-appcompat:$rootProject.androidSupportVersion"
+
+    //emoji支持库
+    implementation "com.android.support:support-emoji-bundled:$rootProject.androidSupportVersion"
 }
