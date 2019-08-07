@@ -6,6 +6,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,7 +35,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends BaseMusicPlayerActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
-   private DrawerLayout drawer_layout;
+    private DrawerLayout drawer_layout;
     ImageView iv_avatar;
     TextView tv_nickname;
     TextView tv_description;
@@ -43,6 +45,8 @@ public class MainActivity extends BaseMusicPlayerActivity implements View.OnClic
     private ImageView iv_recommend;
     private ImageView iv_video;
     private LinearLayout ll_settings;
+    private LinearLayout ll_my_friend;
+    private LinearLayout ll_message_container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,8 @@ public class MainActivity extends BaseMusicPlayerActivity implements View.OnClic
         iv_video = (ImageView) findViewById(R.id.iv_video);
 
         ll_settings = (LinearLayout) findViewById(R.id.ll_settings);
+        ll_my_friend = (LinearLayout) findViewById(R.id.ll_my_friend);
+        ll_message_container = (LinearLayout) findViewById(R.id.ll_message_container);
 
         vp =(ViewPager)findViewById(R.id.vp);
 
@@ -127,6 +133,8 @@ public class MainActivity extends BaseMusicPlayerActivity implements View.OnClic
         vp.addOnPageChangeListener(this);
 
         ll_settings.setOnClickListener(this);
+        ll_my_friend.setOnClickListener(this);
+        ll_message_container.setOnClickListener(this);
         //默认选中第二个页面，设置监听器在选择就会调用监听器
         vp.setCurrentItem(1);
     }
@@ -155,14 +163,14 @@ public class MainActivity extends BaseMusicPlayerActivity implements View.OnClic
                 avatarClick();
                 closeDrawer();
                 break;
-//            case R.id.ll_my_friend:
-//                startActivity(MyFriendActivity.class);
-//                closeDrawer();
-//                break;
-//            case R.id.ll_message_container:
-//                startActivity(MessageActivity.class);
-//                closeDrawer();
-//                break;
+            case R.id.ll_my_friend:
+                startActivity(MyFriendActivity.class);
+                closeDrawer();
+                break;
+            case R.id.ll_message_container:
+                startActivity(MessageActivity.class);
+                closeDrawer();
+                break;
             default:
                 //如果当前界面没有处理，就调用父类的方法
                 super.onClick(v);
@@ -261,5 +269,22 @@ public class MainActivity extends BaseMusicPlayerActivity implements View.OnClic
         }else if (Consts.ACTION_MUSIC_PLAYER.equals(intent.getAction())){
             startActivity(MusicPlayerActivity.class);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.home,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id==R.id.action_search){
+            startActivity(SearchActivity.class);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

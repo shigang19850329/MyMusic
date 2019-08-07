@@ -5,10 +5,13 @@ import com.ixuea.courses.mymusic.domain.Advertisement;
 import com.ixuea.courses.mymusic.domain.Comment;
 import com.ixuea.courses.mymusic.domain.Feed;
 import com.ixuea.courses.mymusic.domain.List;
+import com.ixuea.courses.mymusic.domain.SearchHot;
 import com.ixuea.courses.mymusic.domain.Session;
 import com.ixuea.courses.mymusic.domain.Song;
 import com.ixuea.courses.mymusic.domain.Topic;
 import com.ixuea.courses.mymusic.domain.User;
+import com.ixuea.courses.mymusic.domain.Video;
+import com.ixuea.courses.mymusic.domain.param.FeedParam;
 import com.ixuea.courses.mymusic.domain.response.DetailResponse;
 import com.ixuea.courses.mymusic.domain.response.ListResponse;
 
@@ -104,27 +107,27 @@ public interface Service {
     @GET("sheets/collect.json")
     Observable<ListResponse<List>> listsMyCollection();
 
-//    /**
-//     * 搜索提示列表
-//     * @return
-//     */
-//    @GET("searches/prompts.json")
-//    Observable<ListResponse<SearchHot>> prompt(@QueryMap Map<String, String> data);
-//
-//    /**
-//     * 热门搜索列表
-//     * @return
-//     */
-//    @GET("searches/hots.json")
-//    Observable<ListResponse<SearchHot>> searchHot(@QueryMap Map<String, String> data);
-//
-//    /**
-//     * 搜索歌曲
-//     * @return
-//     */
-//    @GET("searches/songs.json")
-//    Observable<ListResponse<Song>> searchSong(@QueryMap Map<String, String> data);
-//
+    /**
+     * 搜索提示列表
+     * @return
+     */
+    @GET("searches/prompts.json")
+    Observable<ListResponse<SearchHot>> prompt(@QueryMap Map<String, String> data);
+
+    /**
+     * 热门搜索列表
+     * @return
+     */
+    @GET("searches/hots.json")
+    Observable<ListResponse<SearchHot>> searchHot(@QueryMap Map<String, String> data);
+
+    /**
+     * 搜索歌曲
+     * @return
+     */
+    @GET("searches/songs.json")
+    Observable<ListResponse<Song>> searchSong(@QueryMap Map<String, String> data);
+
     /**
      * 创建歌单
      * @return
@@ -155,21 +158,21 @@ public interface Service {
     @POST("likes.json")
     Observable<DetailResponse<Comment>> like(@Field("comment_id") String comment_id);
 
-//    /**
-//     * 关注用户
-//     * @return
-//     */
-//    @FormUrlEncoded
-//    @POST("relationships.json")
-//    Observable<DetailResponse<User>> follow(@Field("id") String user_id);
-//
-//    /**
-//     * 取消关注用户
-//     * @return
-//     */
-//    @DELETE("relationships/{user_id}.json")
-//    Observable<DetailResponse<User>> unFollow(@Path("user_id") String user_id);
-//
+    /**
+     * 关注用户
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("relationships.json")
+    Observable<DetailResponse<User>> follow(@Field("id") String user_id);
+
+    /**
+     * 取消关注用户
+     * @return
+     */
+    @DELETE("relationships/{user_id}.json")
+    Observable<DetailResponse<User>> unFollow(@Path("user_id") String user_id);
+
     /**
      * 收藏歌曲到歌单
      * @return
@@ -240,14 +243,14 @@ public interface Service {
     @GET("feeds.json")
     Observable<ListResponse<Feed>> feeds(@QueryMap Map<String, String> data);
 
-//    /**
-//     * 发布动态
-//     * @param feed
-//     * @return
-//     */
-//    @POST("feeds.json")
-//    Observable<DetailResponse<Feed>> createFeed(@Body FeedParam feed);
-//
+    /**
+     * 发布动态
+     * @param feed
+     * @return
+     */
+    @POST("feeds.json")
+    Observable<DetailResponse<Feed>> createFeed(@Body FeedParam feed);
+
 //  //  /**
 //  //   * 用户列表
 //  //   * @param data
@@ -264,14 +267,14 @@ public interface Service {
     @GET("users/{id}/following.json")
     Observable<ListResponse<User>> following(@Path("id") String id, @QueryMap Map<String, String> data);
 
-//    /**
-//     * 关注我关注的人
-//     * @param id
-//     * @return
-//     */
-//    @GET("users/{id}/followers.json")
-//    Observable<ListResponse<User>> followers(@Path("id") String id, @QueryMap Map<String, String> data);
-//
+    /**
+     * 关注我关注的人
+     * @param id
+     * @return
+     */
+    @GET("users/{id}/followers.json")
+    Observable<ListResponse<User>> followers(@Path("id") String id, @QueryMap Map<String, String> data);
+
     /**
      * 话题列表
      * @param data
@@ -280,22 +283,22 @@ public interface Service {
     @GET("topics.json")
     Observable<ListResponse<Topic>> topics(@QueryMap Map<String, String> data);
 
-//  /**
-//     * 视频列表
-//     * @param data
-//     * @return
-//     */
-//    @GET("videos.json")
-//    Observable<ListResponse<Video>> videos(@QueryMap Map<String, String> data);
-//
-//    /**
-//     * 视频详情
-//     * @param id
-//     * @return
-//     */
-//    @GET("videos/{id}.json")
-//    Observable<DetailResponse<Video>> videoDetail(@Path("id") String id);
-//
+  /**
+     * 视频列表
+     * @param data
+     * @return
+     */
+    @GET("videos.json")
+    Observable<ListResponse<Video>> videos(@QueryMap Map<String, String> data);
+
+    /**
+     * 视频详情
+     * @param id
+     * @return
+     */
+    @GET("videos/{id}.json")
+    Observable<DetailResponse<Video>> videoDetail(@Path("id") String id);
+
 //  //  /**
 //  //   * 查找歌词
 //  //   * @return

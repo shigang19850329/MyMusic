@@ -244,7 +244,7 @@ public class CommentListActivity extends BaseTitleActivity implements CommentAda
                         public void onSucceeded(DetailResponse<Comment> data) {
                             super.onSucceeded(data);
                             //可以调用接口，也可以在本地加减
-                            comment.setLike_count(comment.getLike_count()-1);
+                            comment.setLikes_count(comment.getLikes_count()-1L);
                             comment.setLike_id(null);
                             adapter.notifyDataSetChanged();
                         }
@@ -257,7 +257,7 @@ public class CommentListActivity extends BaseTitleActivity implements CommentAda
                         @Override
                         public void onSucceeded(DetailResponse<Comment> data) {
                             super.onSucceeded(data);
-                            comment.setLike_count(comment.getLike_count()+1);
+                            comment.setLikes_count(comment.getLikes_count()+1L);
                             comment.setLike_id("1");
                             adapter.notifyDataSetChanged();
                         }

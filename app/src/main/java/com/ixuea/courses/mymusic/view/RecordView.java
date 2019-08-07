@@ -152,7 +152,7 @@ public class RecordView extends View{
         int cdLeft = widthHalf-cdWidthHalf;
 
         //它的top,应该有后面白圈的中心点算
-        int cdBgWidth = (int)(measuredWidth/RecordThumbView.CD_BG_SCALE);
+        int cdBgWidth = (int)(measuredWidth/RecordBackgroundView.CD_BG_SCALE);
         int cdBgWidthHalf = cdBgWidth/2;
         int cdBgTop = DensityUtil.dip2px(getContext(),measuredWidth/RecordThumbView.CD_BG_TOP_SCALE);
         int cdBgCenterY = cdBgTop+cdBgWidthHalf;

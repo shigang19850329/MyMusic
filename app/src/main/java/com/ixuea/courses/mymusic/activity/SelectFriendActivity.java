@@ -88,7 +88,7 @@ public class SelectFriendActivity extends BaseTitleActivity {
 
         final MenuItem searchItem = menu.findItem(R.id.action_search_view);
         final SearchView searchView = (SearchView)searchItem.getActionView();
-        //可以在这里配置SearchView
+        //可以在这里配置SearchView,界面上方的搜索栏。
 
         //设置搜索监听器
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){

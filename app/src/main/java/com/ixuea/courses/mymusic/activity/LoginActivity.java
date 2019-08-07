@@ -20,6 +20,7 @@ import com.ixuea.courses.mymusic.domain.response.DetailResponse;
 import com.ixuea.courses.mymusic.reactivex.HttpListener;
 import com.ixuea.courses.mymusic.util.LogUtil;
 import com.ixuea.courses.mymusic.util.ToastUtil;
+import com.ixuea.courses.mymusic.view.AppContext;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -146,7 +147,7 @@ public class LoginActivity extends BaseCommonActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void loginSuccessEvent(LoginSuccessEvent event) {
         //连接融云服务器
-        //((AppContext)getApplication()).imConnect();
+        ((AppContext)getApplication()).imConnect();
         finish();
     }
 
@@ -180,12 +181,12 @@ public class LoginActivity extends BaseCommonActivity {
 
     private void next(Session data) {
         sp.setToken(data.getToken());
-        sp.setIMToken(data.getIm_token());
         sp.setUserId(data.getId());
+        sp.setIMToken(data.getIm_token());
         startActivity(MainActivity.class);
 
-        loginSuccessEvent(null);
-    }
+       loginSuccessEvent(null);
+       }
 
 
     @Override

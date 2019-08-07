@@ -27,6 +27,7 @@ import com.ixuea.courses.mymusic.manager.PlayListManager;
 import com.ixuea.courses.mymusic.reactivex.HttpListener;
 import com.ixuea.courses.mymusic.service.MusicPlayerService;
 import com.ixuea.courses.mymusic.util.Consts;
+import com.ixuea.courses.mymusic.util.DataUtil;
 import com.ixuea.courses.mymusic.util.ImageUtil;
 import com.youth.banner.Banner;
 import com.youth.banner.listener.OnBannerListener;
@@ -219,7 +220,7 @@ public class RecommendFragment extends BaseCommonFragment implements OnBannerLis
                                     public void onSucceeded(ListResponse<Song> data) {
                                         super.onSucceeded(data);
                                         d.add("推荐单曲");
-                                        d.addAll(data.getData());
+                                        d.addAll(DataUtil.fill(data.getData()));
 
                                         advertisements.subscribeOn(Schedulers.io())
                                                 .observeOn(AndroidSchedulers.mainThread())

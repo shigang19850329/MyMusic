@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.ixuea.courses.mymusic.R;
 import com.ixuea.courses.mymusic.domain.event.LogoutSuccessEvent;
+import com.ixuea.courses.mymusic.view.AppContext;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -30,7 +31,8 @@ public class SettingsActivity extends BaseTitleActivity {
     @OnClick(R.id.bt_logout)
     public void bt_logout(){
         sp.logout();
-        //AppContext.logout();
+        //销毁聊天相关的连接，只有登录以后才能连接
+        AppContext.logout();
 
         //Tencent tencent = Tencent.createInstance(Consts.QQ_KEY, this.getApplicationContext());
         //tencent.logout(this);

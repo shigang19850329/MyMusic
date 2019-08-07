@@ -6,10 +6,10 @@ import org.apache.commons.lang3.StringUtils;
  * Created by kaka
  * On 2019/6/29
  */
-public class Comment {
+public class Comment extends Base{
     private String id;
     private String content;
-    private long like_count;
+    private long likes_count;
     private String created_at;
     private User user;
 
@@ -52,12 +52,12 @@ public class Comment {
         this.content = content;
     }
 
-    public long getLike_count() {
-        return like_count;
+    public long getLikes_count() {
+        return likes_count;
     }
 
-    public void setLike_count(long like_count) {
-        this.like_count = like_count;
+    public void setLikes_count(long likes_count) {
+        this.likes_count = likes_count;
     }
 
     public String getCreated_at() {

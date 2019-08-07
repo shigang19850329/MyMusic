@@ -263,10 +263,38 @@ public class UserDetailActivity extends BaseTitleActivity {
     }
     @OnClick(R.id.bt_follow)
     public void bt_follow(){
+       if (user.isFollowing()){
+           //取消关注
+           Api.getInstance().unFollow(user.getId())
+                   .subscribeOn(Schedulers.io())
+                   .observeOn(AndroidSchedulers.mainThread())
+                   .subscribe(new HttpListener<DetailResponse<User>>(getActivity()){
+                       @Override
+                       public void onSucceeded(DetailResponse<User> data) {
+                           super.onSucceeded(data);
+                           user.setFollowing(0);
 
+                           //也可以调用服务端，以服务端的数据刷新界面
+                           showFollowStatus();
+                       }
+                   });
+       }else{
+           //关注
+           Api.getInstance().follow(user.getId())
+                   .subscribeOn(Schedulers.io())
+                   .observeOn(AndroidSchedulers.mainThread())
+                   .subscribe(new HttpListener<DetailResponse<User>>(getActivity()){
+                       @Override
+                       public void onSucceeded(DetailResponse<User> data) {
+                           super.onSucceeded(data);
+                           user.setFollowing(1);
+                           showFollowStatus();
+                       }
+                   });
+       }
     }
     @OnClick(R.id.bt_send_message)
     public void bt_send_message(){
-
+        ConversationActivity.start(this,user.getId());
     }
 }

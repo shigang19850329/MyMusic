@@ -1,11 +1,12 @@
 package com.ixuea.courses.mymusic.activity;
 
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,6 +15,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -26,9 +29,13 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.ixuea.courses.mymusic.R;
 import com.ixuea.courses.mymusic.adapter.BaseRecyclerViewAdapter;
+import com.ixuea.courses.mymusic.adapter.MusicPlayerAdapter;
 import com.ixuea.courses.mymusic.adapter.PlayListAdapter;
 import com.ixuea.courses.mymusic.domain.Lyric;
 import com.ixuea.courses.mymusic.domain.Song;
+import com.ixuea.courses.mymusic.domain.event.OnRecordClickEvent;
+import com.ixuea.courses.mymusic.domain.event.OnStartRecordEvent;
+import com.ixuea.courses.mymusic.domain.event.OnStopRecordEvent;
 import com.ixuea.courses.mymusic.fragment.PlayListDialogFragment;
 import com.ixuea.courses.mymusic.listener.OnLyricClickListener;
 import com.ixuea.courses.mymusic.listener.OnMusicPlayerListener;
@@ -42,14 +49,17 @@ import com.ixuea.courses.mymusic.service.MusicPlayerService;
 import com.ixuea.courses.mymusic.util.AlbumDrawableUtil;
 import com.ixuea.courses.mymusic.util.Consts;
 import com.ixuea.courses.mymusic.util.ImageUtil;
+import com.ixuea.courses.mymusic.util.LogUtil;
 import com.ixuea.courses.mymusic.util.StorageUtil;
 import com.ixuea.courses.mymusic.util.TimeUtil;
 import com.ixuea.courses.mymusic.util.ToastUtil;
 import com.ixuea.courses.mymusic.view.LyricView;
 import com.ixuea.courses.mymusic.view.RecordThumbView;
-import com.ixuea.courses.mymusic.view.RecordView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -81,6 +91,7 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
     private PlayListDialogFragment playListDialog;
     private ArrayList<Line> currentLyricLines;
     private DownloadManager downloadManager;
+    private Song currentSong;
 
 
     /**
@@ -91,7 +102,7 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
     /**
      * 黑胶唱片
      */
-    private RecordView record_view;
+    //private RecordView record_view;
     /**
      * 这是黑胶唱片上的指针
      */
@@ -101,6 +112,7 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
      */
     private LyricView lv;
     private ViewPager vp;
+    private MusicPlayerAdapter adapter;
 
     private static String TAG = "MusicPlayerActivity";
 
@@ -113,6 +125,24 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
     @Override
     protected void initViews() {
         super.initViews();
+
+        //21
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
+            //状态栏颜色设置为透明
+            Window window = getWindow();
+            window.setStatusBarColor(Color.TRANSPARENT);
+
+            //去除半透明状态栏(如果有)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            //SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN让内容显示到状态栏
+            //SYSTEM_UI_FLAG_LAYOUT_STABLE状态栏文字显示白色
+            //SYSTEM_UI_FLAG_LIGHT_STATUS_BAR状态栏文字显示黑色
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            );
+        }
+
         enableBackMenu();
 
         iv_download = findViewById(R.id.iv_download);
@@ -126,7 +156,7 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
         iv_next = findViewById(R.id.iv_next);
         iv_previous = findViewById(R.id.iv_previous);
         iv_play_list = findViewById(R.id.iv_play_list);
-        record_view = findViewById(R.id.record_view);
+        //record_view = findViewById(R.id.record_view);
         lyric_container = findViewById(R.id.lyric_container);
         rl_player_container = findViewById(R.id.rl_player_container);
         sb_volume = findViewById(R.id.sb_volume);
@@ -134,27 +164,28 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
 
         vp = findViewById(R.id.vp);
 
-        //缓存3个页面
+        //缓存3个页面,方便左右滑动。
         vp.setOffscreenPageLimit(3);
     }
 
     private void stopRecordRotate() {
         //record_view.stopAlbumRotate();
-        //EventBus.getDefault().post(new OnStopRecordEvent(currentSong));
+         EventBus.getDefault().post(new OnStopRecordEvent(currentSong));
         rt.stopThumbAnimation();
-        record_view.stopAlbumRotate();
+        //record_view.stopAlbumRotate();
     }
 
     private void startRecordRotate() {
         //record_view.startAlbumRotate();
-        //EventBus.getDefault().post(new OnStartRecordEvent(currentSong));
+        EventBus.getDefault().post(new OnStartRecordEvent(currentSong));
         rt.startThumbAnimation();
-        record_view.startAlbumRotate();
+        //record_view.startAlbumRotate();
     }
 
     @Override
     protected void initDatas() {
         super.initDatas();
+        EventBus.getDefault().register(this);
         downloadManager = DownloadService.getDownloadManager(getApplicationContext());
 
         musicPlayerManager = MusicPlayerService.getMusicPlayerManager(getApplicationContext());
@@ -164,13 +195,13 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
         audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         setVolume();
 
-        Song data = this.playListManager.getPlayData();
-        setFirstData(data);
+        currentSong = this.playListManager.getPlayData();
+
 
         showLoopModel(playListManager.getLoopModel());
 
         //是否下载
-        DownloadInfo downloadInfo = downloadManager.getDownloadById(data.getId());
+        DownloadInfo downloadInfo = downloadManager.getDownloadById(currentSong.getId());
         if (downloadInfo!=null&&downloadInfo.getStatus()==DownloadInfo.STATUS_COMPLETED){
             //下载完成了
             iv_download.setImageResource(R.drawable.ic_downloaded);
@@ -187,6 +218,13 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
 //        lyric.setStyle(10);
 //        lyric.setContent("karaoke := CreateKaraokeObject;\nkaraoke.rows := 2;\nkaraoke.TimeAfterAnimate := 2000;\nkaraoke.TimeBeforeAnimate := 4000;\nkaraoke.clear;\nkaraoke.add('00:20.699', '00:27.055', '[●●●●●●]', '7356',RGB(255,0,0));\n\nkaraoke.add('00:27.487', '00:32.068', '一时失志不免怨叹', '347,373,1077,320,344,386,638,1096');\nkaraoke.add('00:33.221', '00:38.068', '一时落魄不免胆寒', '282,362,1118,296,317,395,718,1359');\nkaraoke.add('00:38.914', '00:42.164', '那通失去希望', '290,373,348,403,689,1147');\nkaraoke.add('00:42.485', '00:44.530', '每日醉茫茫', '298,346,366,352,683');\nkaraoke.add('00:45.273', '00:49.029', '无魂有体亲像稻草人', '317,364,380,351,326,351,356,389,922');\nkaraoke.add('00:50.281', '00:55.585', '人生可比是海上的波浪', '628,1081,376,326,406,371,375,1045,378,318');\nkaraoke.add('00:56.007', '01:00.934', '有时起有时落', '303,362,1416,658,750,1438');\nkaraoke.add('01:02.020', '01:04.581', '好运歹运', '360,1081,360,760');\nkaraoke.add('01:05.283', '01:09.453', '总嘛要照起来行', '303,338,354,373,710,706,1386');\nkaraoke.add('01:10.979', '01:13.029', '三分天注定', '304,365,353,338,690');\nkaraoke.add('01:13.790', '01:15.950', '七分靠打拼', '356,337,338,421,708');\nkaraoke.add('01:16.339', '01:20.870', '爱拼才会赢', '325,1407,709,660,1430');\nkaraoke.add('01:33.068', '01:37.580', '一时失志不免怨叹', '307,384,1021,363,357,374,677,1029');\nkaraoke.add('01:38.660', '01:43.656', '一时落魄不免胆寒', '381,411,1067,344,375,381,648,1389');\nkaraoke.add('01:44.473', '01:47.471', '那通失去希望', '315,365,340,369,684,925');\nkaraoke.add('01:48.000', '01:50.128', '每日醉茫茫', '338,361,370,370,689');\nkaraoke.add('01:50.862', '01:54.593', '无魂有体亲像稻草人', '330,359,368,376,325,334,352,389,898');\nkaraoke.add('01:55.830', '02:01.185', '人生可比是海上的波浪', '654,1056,416,318,385,416,373,1032,342,363');\nkaraoke.add('02:01.604', '02:06.716', '有时起有时落', '303,330,1432,649,704,1694');\nkaraoke.add('02:07.624', '02:10.165', '好运歹运', '329,1090,369,753');\nkaraoke.add('02:10.829', '02:15.121', '总嘛要照起来行', '313,355,362,389,705,683,1485');\nkaraoke.add('02:16.609', '02:18.621', '三分天注定', '296,363,306,389,658');\nkaraoke.add('02:19.426', '02:21.428', '七分靠打拼', '330,359,336,389,588');\nkaraoke.add('02:21.957', '02:26.457', '爱拼才会赢', '315,1364,664,767,1390');\nkaraoke.add('02:50.072', '02:55.341', '人生可比是海上的波浪', '656,1086,349,326,359,356,364,1095,338,340');\nkaraoke.add('02:55.774', '03:01.248', '有时起有时落', '312,357,1400,670,729,2006');\nkaraoke.add('03:01.787', '03:04.369', '好运歹运', '341,1084,376,781');\nkaraoke.add('03:05.041', '03:09.865', '总嘛要起工来行', '305,332,331,406,751,615,2084');\nkaraoke.add('03:10.754', '03:12.813', '三分天注定', '309,359,361,366,664');\nkaraoke.add('03:13.571', '03:15.596', '七分靠打拼', '320,362,349,352,642');\nkaraoke.add('03:16.106', '03:20.688', '爱拼才会赢', '304,1421,661,706,1490');");
 //        setLyric(lyric);
+
+        adapter = new MusicPlayerAdapter(getActivity(),getSupportFragmentManager());
+        vp.setAdapter(adapter);
+        //设置适配器的数据
+        adapter.setDatas(playListManager.getPlayList());
+
+        setInitData(currentSong);
     }
 
     private void showLoopModel(int model) {
@@ -242,16 +280,17 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
         //直接给ListLyricView设置点击，长按
         //事件是无效的，因为内部的Recyclerecord_viewiew拦截了
         //解决方法是监听Item点击，然后通过接口回调（当然也可以使用EventBus）回来
-        record_view.setOnClickListener(this);
+       // record_view.setOnClickListener(this);
         lv.setOnClickListener(this);
         lv.setOnLongClickListener(this);
-        record_view.setOnLongClickListener(this);
+       // record_view.setOnLongClickListener(this);
 
         //lv.setLyricListener(this);
 
         lv.setOnLyricClickListener(this);
         playListManager.addPlayListListener(this);
 
+        //当前页面改变的时候，监听
         vp.addOnPageChangeListener(this);
     }
 
@@ -267,9 +306,9 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
             case R.id.lv:
                 showRecordView();
                 break;
-            case R.id.record_view:
-                showLyricView();
-                break;
+//            case R.id.record_view:
+//                showLyricView();
+//                break;
             case R.id.iv_previous:
                 Song song = playListManager.previous();
                 playListManager.play(song);
@@ -370,11 +409,11 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
 
     private void play() {
         //恢复播放
-        musicPlayerManager.resume();
+       playListManager.resume();
     }
 
     private void pause() {
-        musicPlayerManager.pause();
+        playListManager.pause();
     }
 
     @Override
@@ -421,12 +460,46 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
 
     @Override
     public void onPageSelected(int position) {
+        LogUtil.d("music player activity: "+position);
 
+//        Song song = playListManager.getPlayList().get(position);
+//        playListManager.play(song);
     }
 
+    /**
+     * 当ViewPager状态改变时调用
+     *
+     * @param state The new scroll state
+     * @see ViewPager #SCROLL_STATE_IDLE：空闲
+     * @see ViewPager #SCROLL_STATE_DRAGGING：正在拖拽
+     * @see ViewPager #SCROLL_STATE_SETTLING：滚动完成后
+     */
     @Override
     public void onPageScrollStateChanged(int state) {
+         LogUtil.d("music player activity onPageScrollStateChanged:"+ state);
+         if (ViewPager.SCROLL_STATE_DRAGGING == state){
+             //拖拽状态
 
+             //如果拖拽了，停止当前Cell滚动
+             stopRecordRotate();
+         }else if (state == ViewPager.SCROLL_STATE_IDLE){
+             //空闲状态
+
+             //处理播放状态
+             //判断当前音乐，是否已经播放
+             Song song = playListManager.getPlayList().get(vp.getCurrentItem());
+             if (currentSong == song){
+                 //如果不一样就不处理
+
+                 //如果当前播放，才滚动
+                 if (musicPlayerManager.isPlaying()){
+                     startRecordRotate();
+                 }
+             }else{
+                 //不一样，就要播放这首音乐
+                 playListManager.play(song);
+             }
+         }
     }
 
     @Override
@@ -445,6 +518,13 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
     @Override
     public void onPlaying(Song data) {
         iv_play_control.setImageResource(R.drawable.selector_music_pause);
+        //暂停第一个唱片的歌曲
+        if (currentSong!=null){
+            EventBus.getDefault().post(new OnStopRecordEvent(currentSong));
+        }
+        //开始第二个唱片的歌曲
+        currentSong = data;
+
         startRecordRotate();
     }
 
@@ -456,17 +536,20 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
      */
     @Override
     public void onPrepared(MediaPlayer mediaPlayer, Song data) {
-        setFirstData(data);
+        setInitData(data);
     }
 
-    public void setFirstData(Song data) {
+    public void setInitData(Song data) {
+        //在这里保存一下，在其他的地方还要用到。
+        currentSong = data;
+
         sb_progress.setMax((int) data.getDuration());
         sb_progress.setProgress(sp.getLastSongProgress());
         tv_start_time.setText(TimeUtil.formatMSTime((int) sp.getLastSongProgress()));
         tv_end_time.setText(TimeUtil.formatMSTime((int) data.getDuration()));
 
         //显示专辑的图片
-        record_view.setAlbumUri(data.getBanner());
+        //record_view.setAlbumUri(data.getBanner());
         //设置歌名
         getActivity().setTitle(data.getTitle());
 
@@ -495,7 +578,7 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
         //    //setLyric();
         //}
 
-        //scrollToCurrentSongPosition(currentSong);
+        scrollToCurrentSongPosition(currentSong);
     }
 
     @Override
@@ -530,9 +613,9 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
             case R.id.lv:
                 selectLyric();
                 break;
-            case R.id.record_view:
-                albumPreview();
-                break;
+//            case R.id.record_view:
+//                albumPreview();
+//                break;
         }
         return true;
     }
@@ -563,18 +646,6 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
         startActivity(intent);
     }
 
-    private void albumPreview() {
-        Intent intent = new Intent(this, ImageActivity.class);
-        Song song = playListManager.getPlayData();
-        intent.putExtra(Consts.ID, song.getId());
-        intent.putExtra(Consts.STRING, song.getBanner());
-        //startActivity(intent);
-        //makeSceneTransitionAnimation方法的第一个参数:activity
-        //第二个：共享元素的控件
-        //第三个：共享元素的名称，就是android:transitionName设置的值
-        //api 21才有，当前可以找兼容库来实现
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this,record_view,"banner").toBundle());
-    }
 
     @Override
     public void onLyricClick(long time) {
@@ -587,5 +658,34 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
     @Override
     public void onDataReady(Song song) {
         setLyric(song.getLyric());
+    }
+
+    /**
+     * 滚动到当前音乐对应的界面
+     * @param currentSong
+     */
+    public void scrollToCurrentSongPosition(final Song currentSong){
+        /**
+         * 使用post方法，将方法放到了消息循环
+         * 如果不这样做，在onCreate这样的方法中滚动无效。
+         * 因为这时候，ViewPager的数据还没有显示完成。
+         * 具体这部分我们在《详解View》课程中讲解了。
+         */
+        vp.post(new Runnable() {
+            @Override
+            public void run() {
+                int i = playListManager.getPlayList().indexOf(currentSong);
+                vp.setCurrentItem(i,true);
+            }
+        });
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void OnRecordClickEvent(OnRecordClickEvent event){
+        showLyricView();
+    }
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 }

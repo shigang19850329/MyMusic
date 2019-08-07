@@ -58,6 +58,7 @@ public class TagUtil {
      */
     public static CharSequence process(Context context, String text, final OnTagClickListener onTagClickListener) {
         List<Tag> mentionAndHashTag = TagUtil.findMentionAndHashTag(text);
+        //可以对一个字符串指定的字体进行样式的改变，还可以设置点击事件。
         SpannableString spanString = new SpannableString(text);
 
         for (Tag tag : mentionAndHashTag) {
@@ -70,6 +71,7 @@ public class TagUtil {
 
             //点击事件
             spanString.setSpan(new ClickableSpan() {
+                //第一个参数是设置的类型，第二个参数是起始位置，第三个参数是结束位置，第四个参数是flag
                 @Override
                 public void onClick(View view) {
                     onTagClickListener.onTagClick(content);

@@ -14,6 +14,4 @@ public abstract class ClickableSpan extends android.text.style.ClickableSpan {
         //去掉下划线
         //ds.setUnderlineText(true);
     }
-
-
 }

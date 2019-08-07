@@ -2,6 +2,7 @@ package com.ixuea.courses.mymusic.util;
 
 import android.content.Context;
 
+import com.ixuea.courses.mymusic.domain.SearchHistory;
 import com.ixuea.courses.mymusic.domain.Song;
 import com.litesuits.orm.LiteOrm;
 import com.litesuits.orm.db.assit.QueryBuilder;
@@ -36,7 +37,7 @@ public class OrmUtil {
 
     public void deleteSongs(String userId) {
         orm.delete(new WhereBuilder(Song.class)
-                .where("userId=?", new String[]{userId}));
+                .where("userId=?", (Object[]) new String[]{userId}));
     }
 
     public List<Song> queryPlayList(String userId) {
@@ -77,15 +78,15 @@ public class OrmUtil {
         return orm.queryById(id,Song.class);
     }
 
-//    public List<SearchHistory> queryAllSearchHistory() {
-//        return orm.query(new QueryBuilder<SearchHistory>(SearchHistory.class).appendOrderDescBy("created_at"));
-//    }
-//
-//    public void createOrUpdate(SearchHistory searchHistory) {
-//        orm.save(searchHistory);
-//    }
-//
-//    public void deleteSearchHistory(SearchHistory data) {
-//        orm.delete(data);
-//    }
+    public List<SearchHistory> queryAllSearchHistory() {
+        return orm.query(new QueryBuilder<SearchHistory>(SearchHistory.class).appendOrderDescBy("created_at"));
+    }
+
+    public void createOrUpdate(SearchHistory searchHistory) {
+        orm.save(searchHistory);
+    }
+
+    public void deleteSearchHistory(SearchHistory data) {
+        orm.delete(data);
+    }
 }

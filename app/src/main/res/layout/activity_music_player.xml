@@ -85,10 +85,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <!--黑胶唱片背景-->
-                    <com.ixuea.courses.mymusic.view.RecordView
-                        android:id="@+id/record_view"
-                        android:transitionName="banner"
+                    <com.ixuea.courses.mymusic.view.RecordBackgroundView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
 

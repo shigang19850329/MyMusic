@@ -81,7 +81,6 @@ public class CommentAdapter extends BaseRecyclerViewAdapter<Object,CommentAdapte
             super(itemView);
             tv_title = (TextView) findViewById(R.id.tv_title);
         }
-
         @Override
         public void bindData(Object data) {
            tv_title.setText(data.toString());
@@ -133,7 +132,7 @@ public class CommentAdapter extends BaseRecyclerViewAdapter<Object,CommentAdapte
             tv_nickname.setText(c.getUser().getNickname());
             tv_time.setText(TimeUtil.dateTimeFormat1(((Comment)data).getCreated_at()));
 
-            tv_like_count.setText(String.valueOf(c.getLike_count()));
+            tv_like_count.setText(String.valueOf(c.getLikes_count()));
             if (c.isLiked()){
                 iv_like.setImageResource(R.drawable.ic_comment_liked);
                 tv_like_count.setTextColor(context.getResources().getColor(R.color.main_color));
@@ -157,7 +156,7 @@ public class CommentAdapter extends BaseRecyclerViewAdapter<Object,CommentAdapte
                     }
                 }));
             }
-
+           //点赞
             ll_like_container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

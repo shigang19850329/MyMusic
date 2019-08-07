@@ -6,10 +6,13 @@ import com.ixuea.courses.mymusic.domain.Advertisement;
 import com.ixuea.courses.mymusic.domain.Comment;
 import com.ixuea.courses.mymusic.domain.Feed;
 import com.ixuea.courses.mymusic.domain.List;
+import com.ixuea.courses.mymusic.domain.SearchHot;
 import com.ixuea.courses.mymusic.domain.Session;
 import com.ixuea.courses.mymusic.domain.Song;
 import com.ixuea.courses.mymusic.domain.Topic;
 import com.ixuea.courses.mymusic.domain.User;
+import com.ixuea.courses.mymusic.domain.Video;
+import com.ixuea.courses.mymusic.domain.param.FeedParam;
 import com.ixuea.courses.mymusic.domain.response.DetailResponse;
 import com.ixuea.courses.mymusic.domain.response.ListResponse;
 import com.ixuea.courses.mymusic.interceptor.HttpLoggingInterceptor;
@@ -140,22 +143,22 @@ public class Api {
         return service.lists(query);
     }
 
-//    public Observable<ListResponse<SearchHot>> prompt(String content) {
-//        HashMap<String, String> query = new HashMap<>();
-//        query.put(Consts.TITLE,content);
-//        return service.prompt(query);
-//    }
-//
-//    public Observable<ListResponse<SearchHot>> searchHot() {
-//        HashMap<String, String> query = new HashMap<>();
-//        return service.searchHot(query);
-//    }
-//
-//    public Observable<ListResponse<Song>> searchSong(String title) {
-//        HashMap<String, String> query = new HashMap<>();
-//        query.put(Consts.TITLE,title);
-//        return service.searchSong(query);
-//    }
+    public Observable<ListResponse<SearchHot>> prompt(String content) {
+        HashMap<String, String> query = new HashMap<>();
+        query.put(Consts.TITLE,content);
+        return service.prompt(query);
+    }
+
+    public Observable<ListResponse<SearchHot>> searchHot() {
+        HashMap<String, String> query = new HashMap<>();
+        return service.searchHot(query);
+    }
+
+    public Observable<ListResponse<Song>> searchSong(String title) {
+        HashMap<String, String> query = new HashMap<>();
+        query.put(Consts.TITLE,title);
+        return service.searchSong(query);
+    }
 
     public Observable<DetailResponse<List>> createList(List list) {
         return service.createList(list);
@@ -172,15 +175,15 @@ public class Api {
     public Observable<DetailResponse<Comment>> like(String commentId) {
         return service.like(commentId);
     }
-//
-//    public Observable<DetailResponse<User>> follow(String userId) {
-//        return service.follow(userId);
-//    }
-//
-//    public Observable<DetailResponse<User>> unFollow(String userId) {
-//        return service.unFollow(userId);
-//    }
-//
+
+    public Observable<DetailResponse<User>> follow(String userId) {
+        return service.follow(userId);
+    }
+
+    public Observable<DetailResponse<User>> unFollow(String userId) {
+        return service.unFollow(userId);
+    }
+
     public Observable<DetailResponse<List>> cancelCollectionList(String id) {
         return service.cancelCollectionList(id);
     }
@@ -223,24 +226,24 @@ public class Api {
         return service.feeds(data);
     }
 
-//    ///**
-//    // * 获取动态，传UserId数据就是该用户的，不传就是全部
-//    // * @param userId
-//    // * @return
-//    // */
-//    public Observable<ListResponse<Feed>> feeds(String userId, int pageSize) {
-//        HashMap<String, String> data = new HashMap<>();
-//        if (StringUtils.isNotBlank(userId)) {
-//            data.put(Consts.USER_ID,userId);
-//        }
-//        data.put(Consts.PAGE,String.valueOf(pageSize));
-//        return service.feeds(data);
-//    }
-//
-//    public Observable<DetailResponse<Feed>> createFeed(FeedParam data) {
-//        return service.createFeed(data);
-//    }
-//
+    ///**
+    // * 获取动态，传UserId数据就是该用户的，不传就是全部
+    // * @param userId
+    // * @return
+    // */
+    public Observable<ListResponse<Feed>> feeds(String userId, int pageSize) {
+        HashMap<String, String> data = new HashMap<>();
+        if (StringUtils.isNotBlank(userId)) {
+            data.put(Consts.USER_ID,userId);
+        }
+        data.put(Consts.PAGE,String.valueOf(pageSize));
+        return service.feeds(data);
+    }
+
+    public Observable<DetailResponse<Feed>> createFeed(FeedParam data) {
+        return service.createFeed(data);
+    }
+
     public Observable<ListResponse<Comment>> comments(Map<String,String> data) {
         return service.comments(data);
     }
@@ -255,15 +258,15 @@ public class Api {
         return service.following(id,data);
     }
 
-//    public Observable<ListResponse<User>> myFans(String id,String nickname) {
-//        HashMap<String, String> data = new HashMap<>();
-//
-//        //根据nickname查找
-//        if (StringUtils.isNotEmpty(nickname)) {
-//            data.put(Consts.FILTER, nickname);
-//        }
-//        return service.followers(id,data);
-//    }
+    public Observable<ListResponse<User>> myFans(String id,String nickname) {
+        HashMap<String, String> data = new HashMap<>();
+
+        //根据nickname查找
+        if (StringUtils.isNotEmpty(nickname)) {
+            data.put(Consts.FILTER, nickname);
+        }
+        return service.followers(id,data);
+    }
 
     public Observable<ListResponse<Topic>> topics(String title) {
         HashMap<String, String> data = new HashMap<>();
@@ -284,15 +287,15 @@ public class Api {
         return service.topicDetail(String.valueOf(-1),data);
     }
 
-//    public Observable<ListResponse<Video>> videos() {
-//        HashMap<String, String> data = new HashMap<>();
-//        return service.videos(data);
-//    }
-//
-//    public Observable<DetailResponse<Video>> videoDetail(String id) {
-//        return service.videoDetail(id);
-//    }
-//
+    public Observable<ListResponse<Video>> videos() {
+        HashMap<String, String> data = new HashMap<>();
+        return service.videos(data);
+    }
+
+    public Observable<DetailResponse<Video>> videoDetail(String id) {
+        return service.videoDetail(id);
+    }
+
     public Observable<ListResponse<Advertisement>> advertisements() {
         return service.advertisements();
     }

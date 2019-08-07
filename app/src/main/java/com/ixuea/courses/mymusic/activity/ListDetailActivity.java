@@ -6,9 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.graphics.Palette;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -94,8 +92,8 @@ public class ListDetailActivity extends BaseMusicPlayerActivity implements SongA
         rv.setLayoutManager(layoutManager);
 
         //给它添加一个分割线
-        DividerItemDecoration decoration = new DividerItemDecoration(getActivity(), RecyclerView.VERTICAL);
-        rv.addItemDecoration(decoration);
+//        DividerItemDecoration decoration = new DividerItemDecoration(getActivity(), RecyclerView.VERTICAL);
+//        rv.addItemDecoration(decoration);
     }
 
     @Override
@@ -106,7 +104,7 @@ public class ListDetailActivity extends BaseMusicPlayerActivity implements SongA
         //musicPlayer = MusicPlayerService.getMusicPlayerManager(getApplicationContext());
 
         //adapter = new SongAdapter(getActivity(), R.layout.item_song_detail, getSupportFragmentManager());
-        adapter = new SongAdapter(getActivity(), R.layout.item_song_detail, getSupportFragmentManager(),playListManager,downloadManager);
+        adapter = new SongAdapter(getActivity(), R.layout.item_song_list_detail, getSupportFragmentManager(),playListManager,downloadManager);
         adapter.setOnItemClickListener(new BaseRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerViewAdapter.ViewHolder holder, int position) {

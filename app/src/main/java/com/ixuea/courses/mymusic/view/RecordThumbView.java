@@ -8,7 +8,9 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -17,14 +19,10 @@ import com.ixuea.courses.mymusic.util.DensityUtil;
 import com.ixuea.courses.mymusic.util.ImageUtil;
 
 /**
- * Created by kaka
- * On 2019/4/11
+ * Created by smile on 2018/6/22.
  */
+
 public class RecordThumbView extends View implements ValueAnimator.AnimatorUpdateListener {
-    /**
-     * CD白背景的缩放比
-     */
-    public static final float CD_BG_SCALE = 1.333F;
     /**
      * 指针下面那条线高度
      */
@@ -105,10 +103,6 @@ public class RecordThumbView extends View implements ValueAnimator.AnimatorUpdat
      * 指针的bitmap
      */
     private Bitmap cdThumb;
-    /**
-     * 白圈
-     */
-    private Drawable cdBg;
 
     /**
      * 指针旋转使用的矩阵
@@ -135,6 +129,7 @@ public class RecordThumbView extends View implements ValueAnimator.AnimatorUpdat
         init();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public RecordThumbView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
@@ -143,13 +138,10 @@ public class RecordThumbView extends View implements ValueAnimator.AnimatorUpdat
     private void init() {
         //画笔
         paint = new Paint();
-        //设置抗锯齿
         paint.setAntiAlias(true);
 
-        //最上面那条白线
         cdThumbLine = getResources().getDrawable(R.drawable.shape_cd_thumb_line);
-        //设置背景图片
-        cdBg = getResources().getDrawable(R.drawable.shape_cd_bg);
+
         //创建指针的属性动画
         playThumbAnimator = ValueAnimator.ofFloat(THUMB_ROTATION_PAUSE, THUMB_ROTATION_PLAY);
         playThumbAnimator.setDuration(THUMB_DURATION);
@@ -164,26 +156,15 @@ public class RecordThumbView extends View implements ValueAnimator.AnimatorUpdat
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int measuredWidth = getMeasuredWidth();
-        int widthHalf = measuredWidth / 2;
-
-        int cdBgWidth = (int) (measuredWidth / CD_BG_SCALE);
-        int cdBgWidthHalf = cdBgWidth / 2;
 
         //设置线
         cdThumbLine.setBounds(0, 0, measuredWidth, DensityUtil.dip2px(getContext(), CD_THUMB_LINE_HEIGHT));
-        //cd背景
-        int cdBgleft = widthHalf - cdBgWidthHalf;
-        int cdBgTop = DensityUtil.dip2px(getContext(), measuredWidth / CD_BG_TOP_SCALE);
-        cdBg.setBounds(cdBgleft, cdBgTop, cdBgleft + cdBgWidth, cdBgTop + cdBgWidth);
 
-        //顶部白圈的宽度，这个宽度是截图量出来的。
         int topCircleWidth = DensityUtil.dip2px(getContext(), THUMB_CIRCLE_WIDTH);
 
-        //设置背景，指针绘制定点坐标
         thumbPoint = new Point(measuredWidth / 2 - topCircleWidth / 2, -topCircleWidth / 2);
         thumbRotationPoint = new Point(measuredWidth / 2, 0);
 
-        //指针，onMeasure方法会执行多次，如果不判断，会多次解码BitMap
         if (cdThumb == null) {
             initBitmap();
         }
@@ -191,12 +172,12 @@ public class RecordThumbView extends View implements ValueAnimator.AnimatorUpdat
 
     private void initBitmap() {
         //获取Bitmap，需要用到View宽度的，所以要在onMeasure中
-        int measureWidth = getMeasuredWidth();
+        int measuredWidth = getMeasuredWidth();
 
-        //Thumb的高度
-        int imageHeight = (int) (measureWidth / THUMB_WIDTH_SCALE);
+        int imageHeight = (int) (measuredWidth / THUMB_WIDTH_SCALE);
 
         double scale = imageHeight * 1.0 / DensityUtil.dip2px(getContext(), THUMB_HEIGHT);
+
         //Thumb的宽度
         int imageWidth = (int) (scale * DensityUtil.dip2px(getContext(), THUMB_WIDTH));
 
@@ -207,46 +188,32 @@ public class RecordThumbView extends View implements ValueAnimator.AnimatorUpdat
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        //画之前将原来的保存一下
         canvas.save();
-        /**
-         * 可以通过SurfaceVView来实现局部绘制
-         * 因为旋转指针时，背景和上面那条线不用再重新绘制了
-         * 但View不行，以为每一次View都是一个全新的Canvas
-         * 绘制线，前面设定了setBounds，决定了它的位置和大小。
-         */
+
+        //可以通过SurfaceView来实现局部绘制
+        //因为旋转指针时，背景和上面那条线不用在重新绘制了
+        //但View不行，因为每次View都是一个全新的Canvas
+        //绘制线
         cdThumbLine.draw(canvas);
 
-        //绘制背景
-        cdBg.draw(canvas);
-
-        //绘制指针，用到了矩阵，设置旋转。第一个参数是旋转的角度，第二个参数是点的x,y坐标
+        //绘制指针
         thumbMatrix.setRotate(thumbRotation, thumbRotationPoint.x, thumbRotationPoint.y);
-        //将画板移动到这里去画。
         thumbMatrix.preTranslate(thumbPoint.x, thumbPoint.y);
-        //在这个位置画一个Bitmap。
         canvas.drawBitmap(cdThumb, thumbMatrix, paint);
-        //最后再恢复一下，这样不会对之前的造成影响。
+
         canvas.restore();
     }
 
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
-        //在旋转的过程中，动态的去改变图像的位置。
         thumbRotation = (float) animation.getAnimatedValue();
         invalidate();
     }
 
-    /**
-     * 播放暂停的动画
-     */
     public void stopThumbAnimation() {
         pauseThumbAnimator.start();
     }
 
-    /**
-     * 播放开始的动画
-     */
     public void startThumbAnimation() {
         playThumbAnimator.start();
     }
