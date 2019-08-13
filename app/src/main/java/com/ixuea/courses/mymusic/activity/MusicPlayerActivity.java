@@ -53,7 +53,7 @@ import com.ixuea.courses.mymusic.util.LogUtil;
 import com.ixuea.courses.mymusic.util.StorageUtil;
 import com.ixuea.courses.mymusic.util.TimeUtil;
 import com.ixuea.courses.mymusic.util.ToastUtil;
-import com.ixuea.courses.mymusic.view.LyricView;
+import com.ixuea.courses.mymusic.view.ListLyricView;
 import com.ixuea.courses.mymusic.view.RecordThumbView;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,7 +71,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 
 import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 
-public class MusicPlayerActivity extends BaseTitleActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, ViewPager.OnPageChangeListener, OnMusicPlayerListener, View.OnLongClickListener, OnLyricClickListener, PlayListListener {
+public class MusicPlayerActivity extends BaseTitleActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, ViewPager.OnPageChangeListener, OnMusicPlayerListener, OnLyricClickListener, PlayListListener, ListLyricView.LyricListener {
     private ImageView iv_loop_model;
     private ImageView iv_album_bg;
     private ImageView iv_play_control;
@@ -110,7 +110,7 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
     /**
      * 歌词
      */
-    private LyricView lv;
+    private ListLyricView lv;
     private ViewPager vp;
     private MusicPlayerAdapter adapter;
 
@@ -276,16 +276,19 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
         sb_progress.setOnSeekBarChangeListener(this);
         sb_volume.setOnSeekBarChangeListener(this);
 
+
+       // record_view.setOnClickListener(this);
+//        lv.setOnClickListener(this);
+//        lv.setOnLongClickListener(this);
+       // record_view.setOnLongClickListener(this);
+
         //由于歌词控件内部使用了Recyclerecord_viewiew
         //直接给ListLyricView设置点击，长按
         //事件是无效的，因为内部的Recyclerecord_viewiew拦截了
         //解决方法是监听Item点击，然后通过接口回调（当然也可以使用EventBus）回来
-       // record_view.setOnClickListener(this);
-        lv.setOnClickListener(this);
-        lv.setOnLongClickListener(this);
-       // record_view.setOnLongClickListener(this);
-
-        //lv.setLyricListener(this);
+        //lv.setOnClickListener(this);
+        //lv.setOnLongClickListener(this);
+        lv.setLyricListener(this);
 
         lv.setOnLyricClickListener(this);
         playListManager.addPlayListListener(this);
@@ -303,9 +306,9 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
             case R.id.iv_play_list:
                 showPlayListDialog();
                 break;
-            case R.id.lv:
-                showRecordView();
-                break;
+//            case R.id.lv:
+//                showRecordView();
+//                break;
 //            case R.id.record_view:
 //                showLyricView();
 //                break;
@@ -607,18 +610,18 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
         return result;
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        switch (v.getId()) {
-            case R.id.lv:
-                selectLyric();
-                break;
-//            case R.id.record_view:
-//                albumPreview();
+//    @Override
+//    public boolean onLongClick(View v) {
+//        switch (v.getId()) {
+//            case R.id.lv:
+//                selectLyric();
 //                break;
-        }
-        return true;
-    }
+////            case R.id.record_view:
+////                albumPreview();
+////                break;
+//        }
+//        return true;
+//    }
 
     private void selectLyric() {
         //intent不能直接传递Map，当然传过去也没有用，所以我在这里转为ArrayList
@@ -687,5 +690,23 @@ public class MusicPlayerActivity extends BaseTitleActivity implements View.OnCli
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
         super.onDestroy();
+    }
+
+    /**
+     * 歌词点击事件
+     * @param position
+     */
+    @Override
+    public void onLyricItemClick(int position) {
+        showRecordView();
+    }
+
+    /**
+     * 歌词长按事件
+     * @param position
+     */
+    @Override
+    public void onLyricItemLongClick(int position) {
+        selectLyric();
     }
 }

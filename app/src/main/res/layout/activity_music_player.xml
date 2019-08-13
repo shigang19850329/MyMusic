@@ -74,7 +74,7 @@
 
                     </LinearLayout>
 
-                    <com.ixuea.courses.mymusic.view.LyricView
+                    <com.ixuea.courses.mymusic.view.ListLyricView
                         android:id="@+id/lv"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
